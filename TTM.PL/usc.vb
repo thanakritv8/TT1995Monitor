@@ -1,0 +1,45 @@
+﻿Imports TTM.BLL
+Public Class usc
+    Private _ProcessName As String
+    Public Property ProcessName
+        Get
+            Return _ProcessName
+        End Get
+        Set(value)
+            _ProcessName = value
+        End Set
+    End Property
+
+    Dim _t As Threading.Thread
+    Private Sub usc_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        lbProcessName.Text = _ProcessName
+        _t = New Threading.Thread(AddressOf Run)
+        _t.IsBackground = True
+        _t.Start()
+    End Sub
+
+    Private Sub Run()
+        While _t.IsAlive
+            Dim BLL_Load As BLL_Load = New BLL_Load
+            If _ProcessName = "ภาษี" Then
+                BLL_Load.CheckStatusTaxNotify()
+            Else
+
+            End If
+            Threading.Thread.Sleep(1000)
+        End While
+    End Sub
+
+    Delegate Sub DelUpdateList(ByVal _Msg As String)
+    Private Sub UpdateList(ByVal _Msg As String)
+        If InvokeRequired Then
+            Invoke(New DelUpdateList(AddressOf UpdateList), _Msg)
+        Else
+            If _Msg = "Clear" Then
+                lbControl.Items.Clear()
+            Else
+                lbControl.Items.Add(_Msg)
+            End If
+        End If
+    End Sub
+End Class

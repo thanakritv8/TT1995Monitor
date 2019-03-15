@@ -1,0 +1,61 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+TTM.DAL
+</name>
+</assembly>
+<members>
+<member name="T:TTM.DAL.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:TTM.DAL.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:TTM.DAL.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="M:TTM.DAL.objDB.ConnectDB(System.String,System.String,System.String,System.String)">
+ <summary>
+ Ex. Connect(IPServer,Username,Password)
+ </summary>
+ <param name="strIp"></param>
+ <param name="strUser"></param>
+ <param name="strPass"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:TTM.DAL.objDB.DisconnectDB(System.Data.SqlClient.SqlConnection)">
+ <summary>
+ When close program please disconnect 
+ </summary>
+ <param name="conn"></param>
+ <remarks></remarks>
+</member>
+<member name="M:TTM.DAL.objDB.SelectSQL(System.String,System.Data.SqlClient.SqlConnection)">
+ <summary>
+ Select return datatable
+ </summary>
+ <param name="_SQL"></param>
+ <param name="conn"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:TTM.DAL.objDB.ExecuteSQL(System.String,System.Data.SqlClient.SqlConnection)">
+ <summary>
+ Ex. Insert, Update, Delete, After etc.
+ </summary>
+ <param name="_SQL"></param>
+ <param name="conn"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+</members>
+</doc>
