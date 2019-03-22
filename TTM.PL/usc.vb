@@ -22,11 +22,15 @@ Public Class usc
         While _t.IsAlive
             Dim BLL_Load As BLL_Load = New BLL_Load
             If _ProcessName = "ภาษี" Then
-                BLL_Load.CheckStatusTaxNotify()
+                Dim _Msg As String = BLL_Load.CheckStatusTaxNotify()
+                If Not String.IsNullOrEmpty(_Msg) Then
+                    UpdateList("Clear")
+                    UpdateList(_Msg)
+                End If
             Else
 
             End If
-            Threading.Thread.Sleep(1000)
+            Threading.Thread.Sleep(30000)
         End While
     End Sub
 

@@ -27,9 +27,10 @@ Public Class PL_Load
         _t.Start()
     End Sub
 
+
     Private Sub Run()
         While _t.IsAlive
-            Dim Key As String = "snNseQbdEIMtzUFx0uN3JQt2YhCtjZFbW0EyGFxQoWt"
+            Dim Key As String = Command() '"snNseQbdEIMtzUFx0uN3JQt2YhCtjZFbW0EyGFxQoWt"
             Dim BLL_Load As BLL_Load = New BLL_Load
             Dim DtLine As DataTable = BLL_Load.GetMsgLine
             For Each _Item In DtLine.Rows
