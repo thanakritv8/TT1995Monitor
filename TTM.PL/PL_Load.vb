@@ -27,7 +27,6 @@ Public Class PL_Load
         _t.Start()
     End Sub
 
-
     Private Sub Run()
         While _t.IsAlive
             Dim Key As String = Command() '"snNseQbdEIMtzUFx0uN3JQt2YhCtjZFbW0EyGFxQoWt"

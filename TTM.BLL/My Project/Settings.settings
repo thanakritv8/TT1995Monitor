@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="NameServer" Type="System.String" Scope="User">
-      <Value Profile="(Default)">tt1005v2.database.windows.net</Value>
+      <Value Profile="(Default)">WIN-PKCU6EBIVLI\SQLEXPRESS</Value>
     </Setting>
     <Setting Name="Username" Type="System.String" Scope="User">
-      <Value Profile="(Default)">dev01</Value>
+      <Value Profile="(Default)">sa</Value>
     </Setting>
     <Setting Name="Password" Type="System.String" Scope="User">
       <Value Profile="(Default)">P@ssw0rd</Value>

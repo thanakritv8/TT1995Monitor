@@ -21,16 +21,33 @@ Public Class usc
     Private Sub Run()
         While _t.IsAlive
             Dim BLL_Load As BLL_Load = New BLL_Load
-            If _ProcessName = "ภาษี" Then
-                Dim _Msg As String = BLL_Load.CheckStatusTaxNotify()
-                If Not String.IsNullOrEmpty(_Msg) Then
-                    UpdateList("Clear")
-                    UpdateList(_Msg)
-                End If
-            Else
+            'If _ProcessName = "ภาษี" Then
+            'Dim _Msg As String = BLL_Load.CheckStatusTaxNotify()
+            'If Not String.IsNullOrEmpty(_Msg) Then
+            '    UpdateList("Clear")
+            '    UpdateList(_Msg)
+            'End If
 
-            End If
-            Threading.Thread.Sleep(30000)
+            If _ProcessName = "ภาษี" Then
+                BLL_Load.CheckStatusTaxNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันพรบ." Then
+                BLL_Load.CheckStatusActInsuranceNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันภัยรถยนต์" Then
+                BLL_Load.CheckStatusMainInsuranceNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันภัยสิ่งแวดล้อม" Then
+                BLL_Load.CheckStatusEnvInsuranceNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันภัยสินค้าภายในประเทศ" Then
+                BLL_Load.CheckStatusDPINotify(_ProcessName)
+            ElseIf _ProcessName = "ใบอนุญาต วอ.8" Then
+                BLL_Load.CheckStatusLV8Notify(_ProcessName)
+            ElseIf _ProcessName = "ใบอนุญาตโรงงาน" Then
+                BLL_Load.CheckStatusLFNotify(_ProcessName)
+
+            Else
+                End If
+
+            'End If
+            Threading.Thread.Sleep(1000)
         End While
     End Sub
 

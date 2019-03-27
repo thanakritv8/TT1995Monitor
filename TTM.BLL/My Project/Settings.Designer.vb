@@ -56,7 +56,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("tt1005v2.database.windows.net")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("WIN-PKCU6EBIVLI\SQLEXPRESS")>  _
         Public Property NameServer() As String
             Get
                 Return CType(Me("NameServer"),String)
@@ -68,7 +68,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("dev01")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("sa")>  _
         Public Property Username() As String
             Get
                 Return CType(Me("Username"),String)

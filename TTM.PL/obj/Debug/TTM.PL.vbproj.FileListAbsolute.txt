@@ -1,4 +1,4 @@
-c:\users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.PL\bin\Debug\TTM.PL.exe.config
+C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.PL\bin\Debug\TTM.PL.exe.config
 C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.PL\bin\Debug\TTM.PL.exe
 C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.PL\bin\Debug\TTM.PL.pdb
 C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.PL\bin\Debug\TTM.PL.xml
