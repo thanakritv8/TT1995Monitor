@@ -32,9 +32,51 @@ Public Class PL_Load
             Dim Key As String = Command() '"snNseQbdEIMtzUFx0uN3JQt2YhCtjZFbW0EyGFxQoWt"
             Dim BLL_Load As BLL_Load = New BLL_Load
             Dim DtLine As DataTable = BLL_Load.GetMsgLine
-            For Each _Item In DtLine.Rows
-                BLL_Load.SendLine(Key, _Item("txt_msg"))
-                BLL_Load.UpdateLogMonitor(_Item("log_id"))
+            Dim DTDay As DataTable = DtLine.DefaultView.ToTable(True, "log_days")
+            Dim ArrTableId() As Integer = {3, 15, 18, 16, 17, 30, 28}
+            Dim ArrTableName() As String = {"ภาษี", "ประกันภัยรถยนต์", "ประกันภัยสิ่งแวดล้อม", "ประกันภัยสินค้าภายในประเทศ", "ประกันพรบ.", "ใบอนุญาตโรงงาน", "ใบอนุญาต วอ.8"}
+            For Each _ItemDay In DTDay.Rows
+
+                For i As Integer = 0 To ArrTableId.Length - 1
+                    Dim _Title As String = ArrTableName(i)
+                    Dim DtStatus As DataTable = BLL_Load.GetStatus(ArrTableId(i))
+                    For Each _ItemStatus In DtStatus.Rows
+                        Dim _ContentNumber As String = String.Empty
+                        Dim _ContentLicense As String = String.Empty
+                        Dim _ContentDriver As String = String.Empty
+                        Dim _Content As String = String.Empty
+                        Dim DrRow() As DataRow = DtLine.Select("log_status = '" & _ItemStatus("data_list") & "' and table_id = " & ArrTableId(i) & " and log_days = " & _ItemDay("log_days"))
+                        For r As Integer = 0 To DrRow.Length - 1
+                            If r = DrRow.Length - 1 Then
+                                _ContentNumber &= IIf(IsDBNull(DrRow(r)("number_car")), String.Empty, DrRow(r)("number_car"))
+                                _ContentLicense &= IIf(IsDBNull(DrRow(r)("license_car")), String.Empty, DrRow(r)("license_car"))
+                                _ContentDriver &= IIf(IsDBNull(DrRow(r)("driver_name")), String.Empty, DrRow(r)("driver_name"))
+                            Else
+                                _ContentNumber &= IIf(IsDBNull(DrRow(r)("number_car")), String.Empty, DrRow(r)("number_car")) & ", "
+                                _ContentLicense &= IIf(IsDBNull(DrRow(r)("license_car")), String.Empty, DrRow(r)("license_car")) & ", "
+                                _ContentDriver &= IIf(IsDBNull(DrRow(r)("driver_name")), String.Empty, DrRow(r)("driver_name")) & ", "
+                            End If
+                            BLL_Load.UpdateLogMonitor(DrRow(r)("log_id"))
+                        Next
+                        If DrRow.Length > 0 Then
+                            _Content = "(" & ArrTableName(i) & ")"
+                            If _ContentLicense = String.Empty Then
+                                _Content &= " พนักงานขับรถ " & _ContentDriver
+                            Else
+                                _Content &= " เบอร์รถ " & _ContentNumber
+                                _Content &= " ทะเบียนรถ " & _ContentLicense
+                            End If
+                            If _ItemDay("log_days") = 0 Then
+                                _Content &= " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
+
+                            Else
+                                _Content &= " มีสถานะ " & _ItemStatus("data_list")
+                                _Content &= " เกิน " & _ItemDay("log_days") & " วัน"
+                            End If
+                            BLL_Load.SendLine(Key, _Content)
+                        End If
+                    Next
+                Next
             Next
             Threading.Thread.Sleep(1000)
         End While

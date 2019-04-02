@@ -35,6 +35,14 @@ Public Class BLL_Load
         Return DT
     End Function
 
+    Public Function GetStatus(ByVal TableId As Integer) As DataTable
+        Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "select lu.data_list from config_column as cc join lookup as lu on cc.column_id = lu.column_id join config_monitor as cm on cm.lookup_id = lu.lookup_id where cc.table_id = " & TableId
+        Dim DT As DataTable = objDB.SelectSQL(_SQL, Con)
+        objDB.DisconnectDB(Con)
+        Return DT
+    End Function
+
     Public Sub UpdateLogMonitor(ByVal log_id As Integer)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
         Dim _SQL As String = "UPDATE log_monitor set send_status = 1 where log_id = " & log_id
@@ -131,9 +139,9 @@ Public Class BLL_Load
 #End Region
 
 #Region "Tax"
-    Private Sub UpdateTax(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal txt_msg As String, ByVal send_who As String, ByVal log_status As String, ByVal flag_status As Integer)
+    Private Sub UpdateTax(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, txt_msg, send_who, log_status) VALUES (" & table_id & ", " & fk_id & ", N'" & txt_msg & "', '" & send_who & "', N'" & log_status & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE tax SET tax_status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE tax_id = " & fk_id
@@ -165,7 +173,7 @@ Public Class BLL_Load
                     Dim dateCondition As DateTime = DateTime.Parse(_Item("tax_expire")).AddDays(-90)
                     If dateCondition <= Now Then
                         Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
-                        UpdateTax(3, _Item("tax_id"), _Msg, keyWho, _Item("tax_status"), 0)
+                        UpdateTax(3, _Item("tax_id"), _Item("tax_status"), 0, 0, DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         'Insert log, send line and update flag_status = 0 update_status = now
                         _MsgReturn = _Msg
                     End If
@@ -174,7 +182,7 @@ Public Class BLL_Load
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
                         If dateCondition <= Now Then
                             Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("tax_status") & " เกิน " & _Item("notify_day") & " วัน"
-                            UpdateTax(3, _Item("tax_id"), _Msg, keyWho, _Item("tax_status"), 1)                            'SendLine(keyWho, _Msg)
+                            UpdateTax(3, _Item("tax_id"), _Item("tax_status"), 1, _Item("notify_day"), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))                            'SendLine(keyWho, _Msg)
                             'Insert log, send line and update flag_status = 1 update_status = now
                             _MsgReturn = _Msg
                         End If
@@ -182,7 +190,7 @@ Public Class BLL_Load
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
                         If dateCondition <= Now Then
                             Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("tax_status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
-                            UpdateTax(3, _Item("tax_id"), _Msg, keyWho, _Item("tax_status"), _Item("flag_status") + 1)
+                            UpdateTax(3, _Item("tax_id"), _Item("tax_status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                             'Insert log, send line and update flag_status + 1
                             _MsgReturn = _Msg
                         End If
@@ -200,10 +208,14 @@ Public Class BLL_Load
 
 #End Region
 
+#Region "license_cambodia ใบอนุญาตกัมพูชา"
+
+#End Region
+
 #Region "license_v8 ใบอนุญาต วอ.8"
-    Private Sub UpdateLV8(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal txt_msg As String, ByVal send_who As String, ByVal log_status As String, ByVal flag_status As Integer)
+    Private Sub UpdateLV8(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, txt_msg, send_who, log_status) VALUES (" & table_id & ", " & fk_id & ", N'" & txt_msg & "', '" & send_who & "', N'" & log_status & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE license_v8 SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE lv8_id = " & fk_id
@@ -232,21 +244,21 @@ Public Class BLL_Load
                 If _Item("lv8_status") = "เสร็จสมบูรณ์" Then
                     Dim dateCondition As DateTime = DateTime.Parse(_Item("end_date")).AddDays(-90)
                     If dateCondition <= Now Then
-                        Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
-                        UpdateLV8(3, _Item("lv8_id"), _Msg, keyWho, _Item("lv8_status"), 0)
+                        'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
+                        UpdateLV8(28, _Item("lv8_id"), _Item("lv8_status"), 0, 0, DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                     End If
                 Else
                     If _Item("flag_status") = 0 Then
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("lv8_status") & " เกิน " & _Item("notify_day") & " วัน"
-                            UpdateLV8(3, _Item("lv8_id"), _Msg, keyWho, _Item("lv8_status"), 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("lv8_status") & " เกิน " & _Item("notify_day") & " วัน"
+                            UpdateLV8(28, _Item("lv8_id"), _Item("lv8_status"), 1, _Item("notify_day"), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     Else
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("lv8_status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
-                            UpdateLV8(3, _Item("lv8_id"), _Msg, keyWho, _Item("lv8_status"), _Item("flag_status") + 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("lv8_status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
+                            UpdateLV8(28, _Item("lv8_id"), _Item("lv8_status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     End If
                 End If
@@ -257,9 +269,9 @@ Public Class BLL_Load
 #End Region
 
 #Region "license_factory ใบอนุญาตโรงงาน"
-    Private Sub UpdateLF(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal txt_msg As String, ByVal send_who As String, ByVal log_status As String, ByVal flag_status As Integer)
+    Private Sub UpdateLF(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal driver_name As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, txt_msg, send_who, log_status) VALUES (" & table_id & ", " & fk_id & ", N'" & txt_msg & "', '" & send_who & "', N'" & log_status & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, driver_name) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & driver_name & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE license_factory SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE license_factory_id = " & fk_id
@@ -289,21 +301,21 @@ Public Class BLL_Load
                 If _Item("license_factory_status") = "เสร็จสมบูรณ์" Then
                     Dim dateCondition As DateTime = DateTime.Parse(_Item("expire_date")).AddDays(-90)
                     If dateCondition <= Now Then
-                        Dim _Msg As String = "(" & _ProcessName & ") พนักงานขับรถ " & DtLicense.Rows(0)("driver_name") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
-                        UpdateLF(3, _Item("license_factory_id"), _Msg, keyWho, _Item("license_factory_status"), 0)
+                        'Dim _Msg As String = "(" & _ProcessName & ") พนักงานขับรถ " & DtLicense.Rows(0)("driver_name") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
+                        UpdateLF(30, _Item("license_factory_id"), _Item("license_factory_status"), 0, 0, DtLicense.Rows(0)("driver_name"))
                     End If
                 Else
                     If _Item("flag_status") = 0 Then
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") พนักงานขับรถ " & DtLicense.Rows(0)("driver_name") & " มีสถานะ " & _Item("license_factory_status") & " เกิน " & _Item("notify_day") & " วัน"
-                            UpdateLF(3, _Item("license_factory_id"), _Msg, keyWho, _Item("license_factory_status"), 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") พนักงานขับรถ " & DtLicense.Rows(0)("driver_name") & " มีสถานะ " & _Item("license_factory_status") & " เกิน " & _Item("notify_day") & " วัน"
+                            UpdateLF(30, _Item("license_factory_id"), _Item("license_factory_status"), 1, _Item("notify_day"), DtLicense.Rows(0)("driver_name"))
                         End If
                     Else
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") พนักงานขับรถ " & DtLicense.Rows(0)("driver_name") & " มีสถานะ " & _Item("license_factory_status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
-                            UpdateLF(3, _Item("license_factory_id"), _Msg, keyWho, _Item("license_factory_status"), _Item("flag_status") + 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") พนักงานขับรถ " & DtLicense.Rows(0)("driver_name") & " มีสถานะ " & _Item("license_factory_status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
+                            UpdateLF(30, _Item("license_factory_id"), _Item("license_factory_status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")), DtLicense.Rows(0)("driver_name"))
                         End If
                     End If
                 End If
@@ -314,9 +326,9 @@ Public Class BLL_Load
 #End Region
 
 #Region "act_insurance ประกันพรบ."
-    Private Sub UpdateActInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal txt_msg As String, ByVal send_who As String, ByVal log_status As String, ByVal flag_status As Integer)
+    Private Sub UpdateActInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, txt_msg, send_who, log_status) VALUES (" & table_id & ", " & fk_id & ", N'" & txt_msg & "', '" & send_who & "', N'" & log_status & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE act_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE ai_id = " & fk_id
@@ -345,21 +357,21 @@ Public Class BLL_Load
                 If _Item("status") = "เสร็จสมบูรณ์" Then
                     Dim dateCondition As DateTime = DateTime.Parse(_Item("end_date")).AddDays(-90)
                     If dateCondition <= Now Then
-                        Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
-                        UpdateActInsurance(3, _Item("ai_id"), _Msg, keyWho, _Item("status"), 0)
+                        'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
+                        UpdateActInsurance(17, _Item("ai_id"), _Item("status"), 0, 0, DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                     End If
                 Else
                     If _Item("flag_status") = 0 Then
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") & " วัน"
-                            UpdateActInsurance(3, _Item("ai_id"), _Msg, keyWho, _Item("status"), 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") & " วัน"
+                            UpdateActInsurance(17, _Item("ai_id"), _Item("status"), 1, _Item("notify_day"), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     Else
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
-                            UpdateActInsurance(3, _Item("ai_id"), _Msg, keyWho, _Item("status"), _Item("flag_status") + 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
+                            UpdateActInsurance(17, _Item("ai_id"), _Item("status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     End If
                 End If
@@ -371,9 +383,9 @@ Public Class BLL_Load
 #End Region
 
 #Region "main_insurance ประกันภัยรถยนต์"
-    Private Sub UpdateMainInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal txt_msg As String, ByVal send_who As String, ByVal log_status As String, ByVal flag_status As Integer)
+    Private Sub UpdateMainInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, txt_msg, send_who, log_status) VALUES (" & table_id & ", " & fk_id & ", N'" & txt_msg & "', '" & send_who & "', N'" & log_status & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE main_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE mi_id = " & fk_id
@@ -402,21 +414,21 @@ Public Class BLL_Load
                 If _Item("status") = "เสร็จสมบูรณ์" Then
                     Dim dateCondition As DateTime = DateTime.Parse(_Item("end_date")).AddDays(-90)
                     If dateCondition <= Now Then
-                        Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
-                        UpdateMainInsurance(3, _Item("mi_id"), _Msg, keyWho, _Item("status"), 0)
+                        'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
+                        UpdateMainInsurance(15, _Item("mi_id"), _Item("status"), 0, 0, DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                     End If
                 Else
                     If _Item("flag_status") = 0 Then
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") & " วัน"
-                            UpdateMainInsurance(3, _Item("mi_id"), _Msg, keyWho, _Item("status"), 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") & " วัน"
+                            UpdateMainInsurance(15, _Item("mi_id"), _Item("status"), 1, _Item("notify_day"), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     Else
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
-                            UpdateMainInsurance(3, _Item("mi_id"), _Msg, keyWho, _Item("status"), _Item("flag_status") + 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
+                            UpdateMainInsurance(15, _Item("mi_id"), _Item("status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     End If
                 End If
@@ -428,9 +440,9 @@ Public Class BLL_Load
 #End Region
 
 #Region "environment_insurance ประกันภัยสิ่งแวดล้อม"
-    Private Sub UpdateEnvInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal txt_msg As String, ByVal send_who As String, ByVal log_status As String, ByVal flag_status As Integer)
+    Private Sub UpdateEnvInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, txt_msg, send_who, log_status) VALUES (" & table_id & ", " & fk_id & ", N'" & txt_msg & "', '" & send_who & "', N'" & log_status & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE environment_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE ei_id = " & fk_id
@@ -460,20 +472,20 @@ Public Class BLL_Load
                     Dim dateCondition As DateTime = DateTime.Parse(_Item("end_date")).AddDays(-90)
                     If dateCondition <= Now Then
                         Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
-                        UpdateEnvInsurance(3, _Item("ei_id"), _Msg, keyWho, _Item("status"), 0)
+                        UpdateEnvInsurance(18, _Item("ei_id"), _Item("status"), 0, 0, DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                     End If
                 Else
                     If _Item("flag_status") = 0 Then
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
                         If dateCondition <= Now Then
                             Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") & " วัน"
-                            UpdateEnvInsurance(3, _Item("ei_id"), _Msg, keyWho, _Item("status"), 1)
+                            UpdateEnvInsurance(18, _Item("ei_id"), _Item("status"), 1, _Item("notify_day"), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     Else
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
                         If dateCondition <= Now Then
                             Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
-                            UpdateEnvInsurance(3, _Item("ei_id"), _Msg, keyWho, _Item("status"), _Item("flag_status") + 1)
+                            UpdateEnvInsurance(18, _Item("ei_id"), _Item("status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     End If
                 End If
@@ -484,9 +496,9 @@ Public Class BLL_Load
 #End Region
 
 #Region "domestic_product_insurance ประกันภัยสินค้าภายในประเทศ"
-    Private Sub UpdateDPI(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal txt_msg As String, ByVal send_who As String, ByVal log_status As String, ByVal flag_status As Integer)
+    Private Sub UpdateDPI(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, txt_msg, send_who, log_status) VALUES (" & table_id & ", " & fk_id & ", N'" & txt_msg & "', '" & send_who & "', N'" & log_status & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE domestic_product_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE dpi_id = " & fk_id
@@ -515,21 +527,21 @@ Public Class BLL_Load
                 If _Item("status") = "เสร็จสมบูรณ์" Then
                     Dim dateCondition As DateTime = DateTime.Parse(_Item("end_date")).AddDays(-90)
                     If dateCondition <= Now Then
-                        Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
-                        UpdateDPI(3, _Item("dpi_id"), _Msg, keyWho, _Item("status"), 0)
+                        'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
+                        UpdateDPI(16, _Item("dpi_id"), _Item("status"), 0, 0, DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                     End If
                 Else
                     If _Item("flag_status") = 0 Then
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") & " วัน"
-                            UpdateDPI(3, _Item("dpi_id"), _Msg, keyWho, _Item("status"), 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") & " วัน"
+                            UpdateDPI(16, _Item("dpi_id"), _Item("status"), 1, _Item("notify_day"), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     Else
                         Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
                         If dateCondition <= Now Then
-                            Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
-                            UpdateDPI(3, _Item("dpi_id"), _Msg, keyWho, _Item("status"), _Item("flag_status") + 1)
+                            'Dim _Msg As String = "(" & _ProcessName & ") เบอร์รถ " & DtLicense.Rows(0)("number_car") & " ทะเบียน " & DtLicense.Rows(0)("license_car") & " มีสถานะ " & _Item("status") & " เกิน " & _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")) & " วัน"
+                            UpdateDPI(16, _Item("dpi_id"), _Item("status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")), DtLicense.Rows(0)("number_car"), DtLicense.Rows(0)("license_car"))
                         End If
                     End If
                 End If
