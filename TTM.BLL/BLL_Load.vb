@@ -50,6 +50,21 @@ Public Class BLL_Load
         objDB.DisconnectDB(Con)
     End Sub
 
+    Public Function GetDataLC(ByVal fk_id As Integer) As DataTable
+        Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "select lc.lc_number as number, (select N'เบอร์รถหัว' + number_car + '(' + license_car + ')' from license where license_id = lcp.license_id_head) as number_head, (select N'เบอร์รถท้าย' + number_car + '(' + license_car + ')' from license where license_id = lcp.license_id_tail) as number_tail from license_cambodia_permission as lcp join license_cambodia as lc on lcp.lc_id = lc.lc_id where lcp.lc_id =" & fk_id
+        Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, Con)
+        objDB.DisconnectDB(Con)
+        Return DtLicense
+    End Function
+    Public Function GetDataLMR(ByVal fk_id As Integer) As DataTable
+        Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "select lmr.lmr_number as number, (select N'เบอร์รถหัว' + number_car + '(' + license_car + ')' from license where license_id = lmrp.license_id_head) as number_head, (select N'เบอร์รถท้าย' + number_car + '(' + license_car + ')' from license where license_id = lmrp.license_id_tail) as number_tail from license_mekong_river_permission as lmrp join license_mekong_river as lmr on lmrp.lmr_id = lmr.lmr_id where lmrp.lmr_id =" & fk_id
+        Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, Con)
+        objDB.DisconnectDB(Con)
+        Return DtLicense
+    End Function
+
     Public Sub SendLine(ByVal _Who As String, ByVal _Msg As String)
         Try
             Cursor.Current = Cursors.WaitCursor
@@ -106,7 +121,7 @@ Public Class BLL_Load
         Dim _Dt As DataTable = objDB.SelectSQL(_SQL, Con)
         For Each _Item In _Dt.Rows
             If _Item("business_status") = "เสร็จสมบูรณ์" Then
-                Dim dateCondition As DateTime = DateTime.Parse(_Item("tax_expire")).AddDays(-90)
+                Dim dateCondition As DateTime = DateTime.Parse(_Item("business_expire")).AddDays(-90)
                 If dateCondition <= Now Then
                     Dim _Msg As String = "ใบประกอบการเลขที่ " & _Item("business_number") & " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
                     UpdateBusinessIn(3, _Item("business_id"), _Msg, keyWho, _Item("business_status"), 0)
@@ -141,7 +156,7 @@ Public Class BLL_Load
 #Region "Tax"
     Private Sub UpdateTax(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE tax SET tax_status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE tax_id = " & fk_id
@@ -205,17 +220,109 @@ Public Class BLL_Load
 #End Region
 
 #Region "license_mekong_river ใบอนุญาตลุ่มน้ำโขง"
+    Private Sub UpdateLMR(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer)
+        Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ")"
+        If objDB.ExecuteSQL(_SQL, Con) Then
+            If flag_status = 0 Then
+                _SQL = "UPDATE license_mekong_river SET lmr_status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE lmr_id = " & fk_id
+            Else
+                _SQL = "UPDATE license_mekong_river SET flag_status = " & flag_status & " WHERE lmr_id = " & fk_id
+            End If
+            If objDB.ExecuteSQL(_SQL, Con) Then
+                'Success
+            Else
+                'Error
+            End If
+        Else
+            'Error
+        End If
+        objDB.DisconnectDB(Con)
+    End Sub
 
+    Public Sub CheckStatusLMRNotify(ByVal _ProcessName As String)
+        Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "select lmr.lmr_id, lmr.lmr_number, lmr.lmr_status, lmr.lmr_expire, isnull(lmr.update_status, lmr.create_date) as update_last, isnull(lmr.flag_status,0) as flag_status, cm.notify_day, cm.frequency_day"
+        _SQL &= " from license_mekong_river As lmr left join lookup As lu On lmr.lmr_status = lu.data_list join config_monitor As cm On lu.lookup_id = cm.lookup_id where lu.column_id = 328 And lmr.lmr_status <> ''"
+        Dim _Dt As DataTable = objDB.SelectSQL(_SQL, Con)
+        For Each _Item In _Dt.Rows
+            If _Item("lmr_status") = "เสร็จสมบูรณ์" Then
+                Dim dateCondition As DateTime = DateTime.Parse(_Item("lc_expire")).AddDays(-90)
+                If dateCondition <= Now Then
+                    UpdateLC(23, _Item("lmr_id"), _Item("lmr_status"), 0, 0)
+                End If
+            Else
+                If _Item("flag_status") = 0 Then
+                    Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
+                    If dateCondition <= Now Then
+                        UpdateLC(23, _Item("lmr_id"), _Item("lmr_status"), 1, _Item("notify_day"))
+                    End If
+                Else
+                    Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
+                    If dateCondition <= Now Then
+                        UpdateLC(23, _Item("lmr_id"), _Item("lmr_status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
+                    End If
+                End If
+            End If
+        Next
+        objDB.DisconnectDB(Con)
+    End Sub
 #End Region
 
 #Region "license_cambodia ใบอนุญาตกัมพูชา"
+    Private Sub UpdateLC(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer)
+        Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ")"
+        If objDB.ExecuteSQL(_SQL, Con) Then
+            If flag_status = 0 Then
+                _SQL = "UPDATE license_cambodia SET lc_status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE lc_id = " & fk_id
+            Else
+                _SQL = "UPDATE license_cambodia SET flag_status = " & flag_status & " WHERE lc_id = " & fk_id
+            End If
+            If objDB.ExecuteSQL(_SQL, Con) Then
+                'Success
+            Else
+                'Error
+            End If
+        Else
+            'Error
+        End If
+        objDB.DisconnectDB(Con)
+    End Sub
 
+    Public Sub CheckStatusLCNotify(ByVal _ProcessName As String)
+        Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "select lc.lc_id, lc.lc_number, lc.lc_status, lc.lc_expire, isnull(lc.update_status, lc.create_date) as update_last, isnull(lc.flag_status,0) as flag_status, cm.notify_day, cm.frequency_day"
+        _SQL &= " from license_cambodia As lc left join lookup As lu On lc.lc_status = lu.data_list join config_monitor As cm On lu.lookup_id = cm.lookup_id where lu.column_id = 318 And lc.lc_status <> ''"
+        Dim _Dt As DataTable = objDB.SelectSQL(_SQL, Con)
+        For Each _Item In _Dt.Rows
+            If _Item("lc_status") = "เสร็จสมบูรณ์" Then
+                Dim dateCondition As DateTime = DateTime.Parse(_Item("lc_expire")).AddDays(-90)
+                If dateCondition <= Now Then
+                    UpdateLC(22, _Item("lc_id"), _Item("lc_status"), 0, 0)
+                End If
+            Else
+                If _Item("flag_status") = 0 Then
+                    Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day"))
+                    If dateCondition <= Now Then
+                        UpdateLC(22, _Item("lc_id"), _Item("lc_status"), 1, _Item("notify_day"))
+                    End If
+                Else
+                    Dim dateCondition As DateTime = DateTime.Parse(_Item("update_last")).AddDays(_Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
+                    If dateCondition <= Now Then
+                        UpdateLC(22, _Item("lc_id"), _Item("lc_status"), _Item("flag_status") + 1, _Item("notify_day") + (_Item("frequency_day") * _Item("flag_status")))
+                    End If
+                End If
+            End If
+        Next
+        objDB.DisconnectDB(Con)
+    End Sub
 #End Region
 
 #Region "license_v8 ใบอนุญาต วอ.8"
     Private Sub UpdateLV8(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE license_v8 SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE lv8_id = " & fk_id
@@ -271,7 +378,7 @@ Public Class BLL_Load
 #Region "license_factory ใบอนุญาตโรงงาน"
     Private Sub UpdateLF(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal driver_name As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, driver_name) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & driver_name & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, driver_name) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & driver_name & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE license_factory SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE license_factory_id = " & fk_id
@@ -328,7 +435,7 @@ Public Class BLL_Load
 #Region "act_insurance ประกันพรบ."
     Private Sub UpdateActInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE act_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE ai_id = " & fk_id
@@ -385,7 +492,7 @@ Public Class BLL_Load
 #Region "main_insurance ประกันภัยรถยนต์"
     Private Sub UpdateMainInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE main_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE mi_id = " & fk_id
@@ -442,7 +549,7 @@ Public Class BLL_Load
 #Region "environment_insurance ประกันภัยสิ่งแวดล้อม"
     Private Sub UpdateEnvInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE environment_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE ei_id = " & fk_id
@@ -498,7 +605,7 @@ Public Class BLL_Load
 #Region "domestic_product_insurance ประกันภัยสินค้าภายในประเทศ"
     Private Sub UpdateDPI(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", '', N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE domestic_product_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE dpi_id = " & fk_id
