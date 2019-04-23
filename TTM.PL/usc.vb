@@ -28,28 +28,26 @@ Public Class usc
             '    UpdateList(_Msg)
             'End If
 
-            'If _ProcessName = "ภาษี" Then
-            '    BLL_Load.CheckStatusTaxNotify(_ProcessName)
-            'ElseIf _ProcessName = "ประกันพรบ." Then
-            '    BLL_Load.CheckStatusActInsuranceNotify(_ProcessName)
-            'ElseIf _ProcessName = "ประกันภัยรถยนต์" Then
-            '    BLL_Load.CheckStatusMainInsuranceNotify(_ProcessName)
-            'ElseIf _ProcessName = "ประกันภัยสิ่งแวดล้อม" Then
-            '    BLL_Load.CheckStatusEnvInsuranceNotify(_ProcessName)
-            'ElseIf _ProcessName = "ประกันภัยสินค้าภายในประเทศ" Then
-            '    BLL_Load.CheckStatusDPINotify(_ProcessName)
-            'ElseIf _ProcessName = "ใบอนุญาต วอ.8" Then
-            '    BLL_Load.CheckStatusLV8Notify(_ProcessName)
-            'ElseIf _ProcessName = "ใบอนุญาตโรงงาน" Then
-            '    BLL_Load.CheckStatusLFNotify(_ProcessName)
-            'ElseIf _ProcessName = "ใบอนุญาตกัมพูชา" Then
-            '    BLL_Load.CheckStatusLCNotify(_ProcessName)
-            'End If
-            If _ProcessName = "ใบอนุญาตกัมพูชา" Then
+            If _ProcessName = "ภาษี" Then
+                BLL_Load.CheckStatusTaxNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันพรบ." Then
+                BLL_Load.CheckStatusActInsuranceNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันภัยรถยนต์" Then
+                BLL_Load.CheckStatusMainInsuranceNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันภัยสิ่งแวดล้อม" Then
+                BLL_Load.CheckStatusEnvInsuranceNotify(_ProcessName)
+            ElseIf _ProcessName = "ประกันภัยสินค้าภายในประเทศ" Then
+                BLL_Load.CheckStatusDPINotify(_ProcessName)
+            ElseIf _ProcessName = "ใบอนุญาต วอ.8" Then
+                BLL_Load.CheckStatusLV8Notify(_ProcessName)
+            ElseIf _ProcessName = "ใบอนุญาตโรงงาน" Then
+                BLL_Load.CheckStatusLFNotify(_ProcessName)
+            ElseIf _ProcessName = "ใบอนุญาตกัมพูชา" Then
                 BLL_Load.CheckStatusLCNotify(_ProcessName)
             ElseIf _ProcessName = "ใบอนุญาตลุ่มน้ำโขง" Then
                 BLL_Load.CheckStatusLMRNotify(_ProcessName)
-            End If
+            Else
+                End If
 
             'End If
             Threading.Thread.Sleep(1000)

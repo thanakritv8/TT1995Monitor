@@ -56,7 +56,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("ITLAP043\MSSQLSERVER1")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("WIN-PKCU6EBIVLI\SQLEXPRESS")>  _
         Public Property NameServer() As String
             Get
                 Return CType(Me("NameServer"),String)

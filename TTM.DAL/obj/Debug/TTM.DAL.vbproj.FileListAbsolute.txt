@@ -6,3 +6,21 @@ C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.DAL
 C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.DAL\obj\Debug\TTM.DAL.dll
 C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.DAL\obj\Debug\TTM.DAL.xml
 C:\Users\thanakrit.j\documents\visual studio 2015\Projects\TT1995Monitor\TTM.DAL\obj\Debug\TTM.DAL.pdb
+D:\Programming\TTMonitor\TTM.DAL\bin\Debug\TTM.DAL.dll
+D:\Programming\TTMonitor\TTM.DAL\bin\Debug\TTM.DAL.pdb
+D:\Programming\TTMonitor\TTM.DAL\bin\Debug\TTM.DAL.xml
+D:\Programming\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.vbprojResolveAssemblyReference.cache
+D:\Programming\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.Resources.resources
+D:\Programming\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.vbproj.GenerateResource.Cache
+D:\Programming\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.dll
+D:\Programming\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.xml
+D:\Programming\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.pdb
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\bin\Debug\TTM.DAL.dll
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\bin\Debug\TTM.DAL.pdb
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\bin\Debug\TTM.DAL.xml
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\obj\Debug\TTM.DAL.vbprojResolveAssemblyReference.cache
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\obj\Debug\TTM.DAL.Resources.resources
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\obj\Debug\TTM.DAL.vbproj.GenerateResource.Cache
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\obj\Debug\TTM.DAL.dll
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\obj\Debug\TTM.DAL.xml
+D:\Programming\VB.NET\2015\TTMonitor080419\TTM.DAL\obj\Debug\TTM.DAL.pdb

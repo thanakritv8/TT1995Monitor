@@ -1,4 +1,5 @@
 ﻿Imports TTM.BLL
+
 Public Class PL_Load
     Dim _t As Threading.Thread
     Dim StatusRun As Boolean
@@ -31,7 +32,7 @@ Public Class PL_Load
 
     Private Sub Run()
         While _t.IsAlive
-            If Now.Hour = 15 And StatusRun Then
+            If Now.Hour = 8 And StatusRun Then
                 StatusRun = False
 
                 Dim Key As String = Command() '"snNseQbdEIMtzUFx0uN3JQt2YhCtjZFbW0EyGFxQoWt"
@@ -50,26 +51,22 @@ Public Class PL_Load
                             Dim _ContentLicense As String = String.Empty
                             Dim _ContentDriver As String = String.Empty
                             Dim _Content As String = String.Empty
-
-                            Dim _ContentDataLicense As String = String.Empty
-                            Dim _ContentNumberLicense As String = String.Empty
-
+                            Dim _ContentLcAndLmr As String = String.Empty
                             Dim DrRow() As DataRow = DtLine.Select("log_status = '" & _ItemStatus("data_list") & "' and table_id = " & ArrTableId(i) & " and log_days = " & _ItemDay("log_days"))
+
                             For r As Integer = 0 To DrRow.Length - 1
                                 If ArrTableId(i) = 22 Or ArrTableId(i) = 23 Then
-                                    Dim DtDataLicense As DataTable = New DataTable
-                                    If ArrTableId(i) = 22 Then
-                                        DtDataLicense = BLL_Load.GetDataLC(DrRow(r)("fk_id"))
-                                    ElseIf ArrTableId(i) = 23 Then
-                                        DtDataLicense = BLL_Load.GetDataLMR(DrRow(r)("fk_id"))
-                                    End If
-                                    For Each _ItemDataLicense In DtDataLicense.Rows
-                                        _ContentNumberLicense = _ItemDataLicense("number")
-                                        _ContentDataLicense &= _ItemDataLicense("number_head") & "=>" & _ItemDataLicense("number_tail") & ","
+                                    Dim DtTemp As DataTable = IIf(ArrTableId(i) = 22, BLL_Load.GetLcp(DrRow(r)("fk_id")), BLL_Load.GetLmrp(DrRow(r)("fk_id")))
+                                    _ContentLcAndLmr &= " เลขที่ใบอนุญาติ " & BLL_Load.GetLicenseNumberLc(DrRow(r)("fk_id"), ArrTableId(i))
+                                    For z As Integer = 0 To DtTemp.Rows.Count - 1
+                                        If z = 0 Then
+                                            _ContentLcAndLmr &= " ( " & "เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")" & IIf(z = DtTemp.Rows.Count - 1, ")", "")
+                                        ElseIf z = DtTemp.Rows.Count - 1 Then
+                                            _ContentLcAndLmr &= ", เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")" & ")"
+                                        Else
+                                            _ContentLcAndLmr &= ", เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")"
+                                        End If
                                     Next
-                                    If (_ContentDataLicense.Length > 0) Then
-                                        _ContentDataLicense = Mid(_ContentDataLicense, 1, _ContentDataLicense.Length - 1)
-                                    End If
                                 Else
                                     If r = DrRow.Length - 1 Then
                                         _ContentNumber &= IIf(IsDBNull(DrRow(r)("number_car")), String.Empty, DrRow(r)("number_car"))
@@ -81,14 +78,13 @@ Public Class PL_Load
                                         _ContentDriver &= IIf(IsDBNull(DrRow(r)("driver_name")), String.Empty, DrRow(r)("driver_name")) & ", "
                                     End If
                                 End If
-
                                 BLL_Load.UpdateLogMonitor(DrRow(r)("log_id"))
                             Next
+
                             If DrRow.Length > 0 Then
                                 _Content = "(" & ArrTableName(i) & ")"
                                 If ArrTableId(i) = 22 Or ArrTableId(i) = 23 Then
-                                    _Content &= " ใบอนุญาตเลขที่ " & _ContentNumberLicense
-                                    _Content &= " " & _ContentDataLicense
+                                    _Content &= _ContentLcAndLmr
                                 Else
                                     If _ContentLicense = String.Empty Then
                                         _Content &= " พนักงานขับรถ " & _ContentDriver
@@ -96,10 +92,11 @@ Public Class PL_Load
                                         _Content &= " เบอร์รถ " & _ContentNumber
                                         _Content &= " ทะเบียนรถ " & _ContentLicense
                                     End If
-
                                 End If
+
                                 If _ItemDay("log_days") = 0 Then
                                     _Content &= " ถูกเปลี่ยนสถานะจาก เสร็จสมบูรณ์ เป็น ยังไม่ได้ดำเนินการ"
+
                                 Else
                                     _Content &= " มีสถานะ " & _ItemStatus("data_list")
                                     _Content &= " เกิน " & _ItemDay("log_days") & " วัน"
@@ -109,7 +106,7 @@ Public Class PL_Load
                         Next
                     Next
                 Next
-            ElseIf Now.Hour <> 15 Then
+            ElseIf Now.Hour <> 8 Then
                 StatusRun = True
             End If
             Threading.Thread.Sleep(1000)
