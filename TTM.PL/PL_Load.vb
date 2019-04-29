@@ -57,16 +57,21 @@ Public Class PL_Load
                             For r As Integer = 0 To DrRow.Length - 1
                                 If ArrTableId(i) = 22 Or ArrTableId(i) = 23 Then
                                     Dim DtTemp As DataTable = IIf(ArrTableId(i) = 22, BLL_Load.GetLcp(DrRow(r)("fk_id")), BLL_Load.GetLmrp(DrRow(r)("fk_id")))
-                                    _ContentLcAndLmr &= " เลขที่ใบอนุญาติ " & BLL_Load.GetLicenseNumberLc(DrRow(r)("fk_id"), ArrTableId(i))
-                                    For z As Integer = 0 To DtTemp.Rows.Count - 1
-                                        If z = 0 Then
-                                            _ContentLcAndLmr &= " ( " & "เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")" & IIf(z = DtTemp.Rows.Count - 1, ")", "")
-                                        ElseIf z = DtTemp.Rows.Count - 1 Then
-                                            _ContentLcAndLmr &= ", เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")" & ")"
-                                        Else
-                                            _ContentLcAndLmr &= ", เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")"
-                                        End If
-                                    Next
+                                    If r = 0 Then
+                                        _ContentLcAndLmr &= " เลขที่ใบอนุญาติ " & BLL_Load.GetLicenseNumberLc(DrRow(r)("fk_id"), ArrTableId(i))
+                                    Else
+                                        _ContentLcAndLmr &= ", " & BLL_Load.GetLicenseNumberLc(DrRow(r)("fk_id"), ArrTableId(i))
+                                    End If
+
+                                    'For z As Integer = 0 To DtTemp.Rows.Count - 1
+                                    '    If z = 0 Then
+                                    '        _ContentLcAndLmr &= " ( " & "เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")" & IIf(z = DtTemp.Rows.Count - 1, ")", "")
+                                    '    ElseIf z = DtTemp.Rows.Count - 1 Then
+                                    '        _ContentLcAndLmr &= ", เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")" & ")"
+                                    '    Else
+                                    '        _ContentLcAndLmr &= ", เบอร์หัวรถ " & DtTemp.Rows(z).Item("number_car_head") & " (" & DtTemp.Rows(z).Item("license_car_head") & ")" & " => เบอร์ทายรถ " & DtTemp.Rows(z).Item("number_car_tail") & " (" & DtTemp.Rows(z).Item("license_car_tail") & ")"
+                                    '    End If
+                                    'Next
                                 Else
                                     If r = DrRow.Length - 1 Then
                                         _ContentNumber &= IIf(IsDBNull(DrRow(r)("number_car")), String.Empty, DrRow(r)("number_car"))

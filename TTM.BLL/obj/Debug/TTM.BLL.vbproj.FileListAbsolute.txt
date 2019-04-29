@@ -50,3 +50,16 @@ D:\Programming\VB.NET\2015\TTMonitor080419\TTM.BLL\obj\Debug\TTM.BLL.vbproj.Gene
 D:\Programming\VB.NET\2015\TTMonitor080419\TTM.BLL\obj\Debug\TTM.BLL.dll
 D:\Programming\VB.NET\2015\TTMonitor080419\TTM.BLL\obj\Debug\TTM.BLL.xml
 D:\Programming\VB.NET\2015\TTMonitor080419\TTM.BLL\obj\Debug\TTM.BLL.pdb
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\bin\Debug\TTM.BLL.dll.config
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\bin\Debug\TTM.BLL.dll
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\bin\Debug\TTM.BLL.pdb
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\bin\Debug\TTM.BLL.xml
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\bin\Debug\TTM.DAL.dll
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\bin\Debug\TTM.DAL.pdb
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\bin\Debug\TTM.DAL.xml
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\obj\Debug\TTM.BLL.vbprojResolveAssemblyReference.cache
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\obj\Debug\TTM.BLL.Resources.resources
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\obj\Debug\TTM.BLL.vbproj.GenerateResource.Cache
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\obj\Debug\TTM.BLL.dll
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\obj\Debug\TTM.BLL.xml
+D:\Programming\VB.NET\2015\TTMonitor\TTM.BLL\obj\Debug\TTM.BLL.pdb
