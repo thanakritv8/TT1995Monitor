@@ -194,7 +194,7 @@ Public Class BLL_Load
 #Region "Tax"
     Private Sub UpdateTax(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', N'" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE tax SET tax_status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE tax_id = " & fk_id
@@ -260,7 +260,7 @@ Public Class BLL_Load
 #Region "license_v8 ใบอนุญาต วอ.8"
     Private Sub UpdateLV8(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', N'" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE license_v8 SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE lv8_id = " & fk_id
@@ -319,7 +319,7 @@ Public Class BLL_Load
         Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, driver_name) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", N'" & driver_name & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
-                _SQL = "UPDATE license_factory SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE license_factory_id = " & fk_id
+                _SQL = "UPDATE license_factory SET license_factory_status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE license_factory_id = " & fk_id
             Else
                 _SQL = "UPDATE license_factory SET flag_status = " & flag_status & " WHERE license_factory_id = " & fk_id
             End If
@@ -373,7 +373,7 @@ Public Class BLL_Load
 #Region "act_insurance ประกันพรบ."
     Private Sub UpdateActInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', N'" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE act_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE ai_id = " & fk_id
@@ -430,7 +430,7 @@ Public Class BLL_Load
 #Region "main_insurance ประกันภัยรถยนต์"
     Private Sub UpdateMainInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', N'" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE main_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE mi_id = " & fk_id
@@ -487,7 +487,7 @@ Public Class BLL_Load
 #Region "environment_insurance ประกันภัยสิ่งแวดล้อม"
     Private Sub UpdateEnvInsurance(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', N'" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE environment_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE ei_id = " & fk_id
@@ -543,7 +543,7 @@ Public Class BLL_Load
 #Region "domestic_product_insurance ประกันภัยสินค้าภายในประเทศ"
     Private Sub UpdateDPI(ByVal table_id As Integer, ByVal fk_id As Integer, ByVal log_status As String, ByVal flag_status As Integer, ByVal days As Integer, ByVal number_car As String, ByVal license_car As String)
         Dim Con As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', '" & license_car & "')"
+        Dim _SQL As String = "INSERT INTO log_monitor (table_id, fk_id, log_status, log_days, number_car, license_car) VALUES (" & table_id & ", " & fk_id & ", N'" & log_status & "', " & days & ", '" & number_car & "', N'" & license_car & "')"
         If objDB.ExecuteSQL(_SQL, Con) Then
             If flag_status = 0 Then
                 _SQL = "UPDATE domestic_product_insurance SET status = N'ยังไม่ได้ดำเนินการ', flag_status = " & flag_status & ", update_status = GETDATE() WHERE dpi_id = " & fk_id

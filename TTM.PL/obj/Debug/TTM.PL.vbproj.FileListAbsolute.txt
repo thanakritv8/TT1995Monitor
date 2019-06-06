@@ -80,7 +80,6 @@ D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\bin\Debug\TTM.BLL.pdb
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\bin\Debug\TTM.BLL.xml
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\bin\Debug\TTM.DAL.pdb
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\bin\Debug\TTM.DAL.xml
-D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.vbprojResolveAssemblyReference.cache
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.Resources.resources
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.PL_Load.resources
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.usc.resources
@@ -88,3 +87,7 @@ D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.vbproj.GenerateReso
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.exe
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.xml
 D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.pdb
+D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\bin\Debug\TTM.BLL.dll.config
+D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.vbprojAssemblyReference.cache
+D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.vbproj.CoreCompileInputs.cache
+D:\Programming\VB.NET\2015\TTMonitor\TTM.PL\obj\Debug\TTM.PL.vbproj.CopyComplete

@@ -32,3 +32,5 @@ D:\Programming\VB.NET\2015\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.vbproj.GenerateRe
 D:\Programming\VB.NET\2015\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.dll
 D:\Programming\VB.NET\2015\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.xml
 D:\Programming\VB.NET\2015\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.pdb
+D:\Programming\VB.NET\2015\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.vbprojAssemblyReference.cache
+D:\Programming\VB.NET\2015\TTMonitor\TTM.DAL\obj\Debug\TTM.DAL.vbproj.CoreCompileInputs.cache
