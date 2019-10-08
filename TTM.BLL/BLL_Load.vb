@@ -121,12 +121,15 @@ Public Class BLL_Load
                               where " & IdName & " = " & fk_id
         Dim DT As DataTable = objDB.SelectSQL(_SQL, Con)
         objDB.DisconnectDB(Con)
-        If DT.Rows(0).Item(ColumnName) = Nothing Then
+        Try
+            If DT.Rows(0).Item(ColumnName) = Nothing Then
+                Return 0
+            Else
+                Return DT.Rows(0).Item(ColumnName)
+            End If
+        Catch ex As Exception
             Return 0
-        Else
-            Return DT.Rows(0).Item(ColumnName)
-        End If
-
+        End Try
     End Function
 
 #End Region
